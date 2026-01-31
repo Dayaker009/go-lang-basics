@@ -23,8 +23,17 @@ type UserData  = struct {
 	userTickets uint
 }
 
+type Rectangle struct {
+	length float64
+	width  float64
+}
+
 // entry point of the program
 func main() {
+
+	rect := Rectangle{length: 10.0, width: 5.0}
+	area := rect.Area()
+	println("Area of Rectangle:", area)
 
 	// calling greetUsers function
 	greetUsers()
@@ -46,6 +55,7 @@ func main() {
 
 	waitGroup.Wait() // wait for all go routines to finish
 }
+
 
 func greetUsers() {
 	fmt.Printf("Welcome to our %v booking Application!!\n", conferenceName)
@@ -106,4 +116,9 @@ func handleValidation(firstName string, lastName string, userTickets uint) bool 
     }
 
     return true
+}
+
+// method to calculate area of rectangle
+func (r Rectangle) Area() float64 {
+	return r.length * r.width
 }
