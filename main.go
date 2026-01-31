@@ -3,6 +3,7 @@ package main // package main.
 import (
 	"fmt" // import fmt package
 	"strings" // import strings package
+	"go-lang-basics/helper" // import helper package
 )
 
 const conferenceName string = "Go Conference" // syntax for declaring and initializing a constant
@@ -18,10 +19,10 @@ func main() {
 
 	for {						
 		// get user input using function
-		firstName, lastName, userTickets := getUserInput()
+		firstName, lastName, userTickets := helper.GetUserInput()
 
 		// validate user input
-		isValidName, isValidTicketNumber := validateUserInput(firstName, lastName, userTickets)
+		isValidName, isValidTicketNumber := helper.ValidateUserInput(firstName, lastName, userTickets)
 
 		if !isValidName {
 			fmt.Println("First name or last name you entered is too short. Please try again.")
@@ -72,23 +73,3 @@ func getFirstNames() []string {
 	return firstNames
 }
 
-func getUserInput() (string, string, uint) {
-	var firstName string
-	var lastName string
-	var userTickets uint
-
-	fmt.Println("Enter your first name:")
-	fmt.Scan(&firstName)
-	fmt.Println("Enter your last name:")
-	fmt.Scan(&lastName)
-	fmt.Println("Please Enter the number of tickets you want to book:")
-	fmt.Scan(&userTickets)
-
-	return firstName, lastName, userTickets
-}
-
-func validateUserInput(firstName string, lastName string, userTickets uint) (bool, bool) {
-	isValidName := len(firstName) >= 2 && len(lastName) >= 2
-	isValidTicketNumber := userTickets > 0
-	return isValidName, isValidTicketNumber
-}
