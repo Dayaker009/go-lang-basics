@@ -1,15 +1,15 @@
 package main // package main.
 
 import (
-	"fmt" // import fmt package
-	"strings" // import strings package
+	"fmt"                   // import fmt package
 	"go-lang-basics/helper" // import helper package
+	"strconv"			   // import strconv package
 )
 
 const conferenceName string = "Go Conference" // syntax for declaring and initializing a constant
 var remainingTickets uint = 50
 const conferenceTickets uint = 50
-var bookings []string // empty slice of strings
+var bookings = make([]map[string]string, 0) // empty slice of boookings
 
 // entry point of the program
 func main() {
@@ -19,36 +19,18 @@ func main() {
 
 	for {						
 		// get user input using function
-		firstName, lastName, userTickets := helper.GetUserInput()
+		firstName, lastName, email, userTickets := helper.GetUserInput()
 
-		// validate user input
-		isValidName, isValidTicketNumber := helper.ValidateUserInput(firstName, lastName, userTickets)
-
-		if !isValidName {
-			fmt.Println("First name or last name you entered is too short. Please try again.")
-			continue
-		}
-
-		if !isValidTicketNumber {
-			fmt.Println("The number of tickets you entered is invalid. Please try again.")
-			continue
-		}
-
-		if userTickets > remainingTickets {
-			fmt.Printf("We only have %v tickets remaining, so you can't book %v tickets\n", remainingTickets, userTickets)
+		if !handleValidation(firstName, lastName, userTickets) {
 			continue
 		}
 
 		remainingTickets = remainingTickets - userTickets
-		fmt.Printf("Thank you %v for booking %v tickets. You will receive a confirmation email shortly.\n", firstName+" "+lastName, userTickets)
-		fmt.Printf("%v tickets are remaining for %v\n", remainingTickets, conferenceName)
 
-		bookings = append(bookings, firstName+" "+lastName) // adding firstName and lastName to bookings slice
-		fmt.Printf("Type of bookings is %T\n", bookings)
-		fmt.Printf("The first booking is %v\n", bookings[0])
-		fmt.Printf("The number of bookings is %v\n", len(bookings))
+		bookTicket(userTickets, firstName, lastName, email)
 
 		firstNames := getFirstNames()
+
 		fmt.Printf("The bookings are: %v\n", firstNames)
 
 		if remainingTickets == 0 {
@@ -67,9 +49,44 @@ func greetUsers() {
 func getFirstNames() []string {
 	firstNames := []string{}	
 	for _, booking := range bookings {
-		var names = strings.Fields(booking) // assigning booking to names
-		firstNames = append(firstNames, names[0]) // appending first name to firstNames slice
+		firstNames = append(firstNames, booking["firstName"]) // appending first name to firstNames slice
 	}
 	return firstNames
 }
 
+func bookTicket(userTickets uint, firstName string, lastName string, email string) {
+
+	// make is a built-in function that allocates and initializes an object of type slice, map, or chan
+	var userData = make(map[string]string) // create a map to store user data
+
+	userData["firstName"] = firstName
+	userData["lastName"] = lastName
+	userData["email"] = email
+	userData["userTickets"] = strconv.FormatUint(uint64(userTickets), 10) // converting uint to string
+
+	remainingTickets = remainingTickets - userTickets
+	bookings = append(bookings, userData) // append userData to bookings map list
+	fmt.Printf("Thank you %v for booking %v tickets. You will receive a confirmation email shortly.\n", firstName+" "+lastName, userTickets)
+	fmt.Printf("%v tickets are remaining for %v\n", remainingTickets, conferenceName)
+}
+
+func handleValidation(firstName string, lastName string, userTickets uint) bool {
+    isValidName, isValidTicketNumber := helper.ValidateUserInput(firstName, lastName, userTickets)
+
+    if !isValidName {
+        fmt.Println("First name or last name you entered is too short. Please try again.")
+        return false
+    }
+
+    if !isValidTicketNumber {
+        fmt.Println("The number of tickets you entered is invalid. Please try again.")
+        return false
+    }
+
+    if userTickets > remainingTickets {
+        fmt.Printf("We only have %v tickets remaining, so you can't book %v tickets\n", remainingTickets, userTickets)
+        return false
+    }
+
+    return true
+}
