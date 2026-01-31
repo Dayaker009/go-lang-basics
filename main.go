@@ -1,40 +1,94 @@
 package main // package main.
 
-import "fmt" // import fmt package
+import (
+	"fmt" // import fmt package
+	"strings" // import strings package
+)
+
+const conferenceName string = "Go Conference" // syntax for declaring and initializing a constant
+var remainingTickets uint = 50
+const conferenceTickets uint = 50
+var bookings []string // empty slice of strings
 
 // entry point of the program
 func main() {
 
-	conferenceName := "Go Conference" // syntax for declaring and initializing a variable
-	const conferenceTickets uint = 50
-	var remainingTickets uint = 50
+	// calling greetUsers function
+	greetUsers()
 
-	fmt.Printf("Type of conferenceName is %T, conferenceTickets is %T \n", conferenceName, conferenceTickets)
+	for {						
+		// get user input using function
+		firstName, lastName, userTickets := getUserInput()
 
+		// validate user input
+		isValidName, isValidTicketNumber := validateUserInput(firstName, lastName, userTickets)
+
+		if !isValidName {
+			fmt.Println("First name or last name you entered is too short. Please try again.")
+			continue
+		}
+
+		if !isValidTicketNumber {
+			fmt.Println("The number of tickets you entered is invalid. Please try again.")
+			continue
+		}
+
+		if userTickets > remainingTickets {
+			fmt.Printf("We only have %v tickets remaining, so you can't book %v tickets\n", remainingTickets, userTickets)
+			continue
+		}
+
+		remainingTickets = remainingTickets - userTickets
+		fmt.Printf("Thank you %v for booking %v tickets. You will receive a confirmation email shortly.\n", firstName+" "+lastName, userTickets)
+		fmt.Printf("%v tickets are remaining for %v\n", remainingTickets, conferenceName)
+
+		bookings = append(bookings, firstName+" "+lastName) // adding firstName and lastName to bookings slice
+		fmt.Printf("Type of bookings is %T\n", bookings)
+		fmt.Printf("The first booking is %v\n", bookings[0])
+		fmt.Printf("The number of bookings is %v\n", len(bookings))
+
+		firstNames := getFirstNames()
+		fmt.Printf("The bookings are: %v\n", firstNames)
+
+		if remainingTickets == 0 {
+			println("Our conference is booked out. Come back next year.")
+			break
+		}
+	}
+}
+
+func greetUsers() {
 	fmt.Printf("Welcome to our %v booking Application!!\n", conferenceName)
 	fmt.Printf("We have a total of %v tickets and %v are still available.\n", conferenceTickets, remainingTickets)
 	fmt.Println("Get your tickets here to attend")
+}
 
-	var bookings []string
+func getFirstNames() []string {
+	firstNames := []string{}	
+	for _, booking := range bookings {
+		var names = strings.Fields(booking) // assigning booking to names
+		firstNames = append(firstNames, names[0]) // appending first name to firstNames slice
+	}
+	return firstNames
+}
 
-	var userName string
-	fmt.Println("Enter your name:")
-	fmt.Scan(&userName)
-
+func getUserInput() (string, string, uint) {
+	var firstName string
+	var lastName string
 	var userTickets uint
+
+	fmt.Println("Enter your first name:")
+	fmt.Scan(&firstName)
+	fmt.Println("Enter your last name:")
+	fmt.Scan(&lastName)
 	fmt.Println("Please Enter the number of tickets you want to book:")
 	fmt.Scan(&userTickets)
 
-	remainingTickets = remainingTickets - userTickets
-	fmt.Printf("Thank you %v for booking %v tickets. You will receive a confirmation email shortly.\n", userName, userTickets)
-	fmt.Printf("%v tickets are remaining for %v\n", remainingTickets, conferenceName)
+	return firstName, lastName, userTickets
+}
 
-	bookings = append(bookings, userName) // adding userName to bookings slice
-	fmt.Printf("Type of bookings is %T\n", bookings)
-	fmt.Printf("The first booking is %v\n", bookings[0])
-	fmt.Printf("The number of bookings is %v\n", len(bookings))
-	
-	fmt.Printf("The bookings are: %v\n", bookings)
-
-	fmt.Printf("User %v booked %v tickets.\n", userName, userTickets)
+func validateUserInput(firstName string, lastName string, userTickets uint) (bool, bool) {
+	isValidName := len(firstName) >= 2 && len(lastName) >= 2
+	isValidTicketNumber := userTickets > 0
+	return isValidName, isValidTicketNumber
 }
