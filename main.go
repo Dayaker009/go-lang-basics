@@ -3,6 +3,7 @@ package main // package main.
 import (
 	"fmt"                   // import fmt package
 	"go-lang-basics/helper" // import helper package
+	"sync" 				// import sync package
 	"time"
 )
 
@@ -10,6 +11,9 @@ const conferenceName string = "Go Conference" // syntax for declaring and initia
 var remainingTickets uint = 50
 const conferenceTickets uint = 50
 var bookings = make([]UserData, 0) // empty slice of boookings
+
+// wait group to wait for go routines to finish
+var waitGroup = sync.WaitGroup{}
 
 // defining a custom data type using struct
 type UserData  = struct {
@@ -24,29 +28,23 @@ func main() {
 
 	// calling greetUsers function
 	greetUsers()
+						
+	// get user input using function
+	firstName, lastName, email, userTickets := helper.GetUserInput()
+	handleValidation(firstName, lastName, userTickets)
+	bookTicket(userTickets, firstName, lastName, email)
 
-	for {						
-		// get user input using function
-		firstName, lastName, email, userTickets := helper.GetUserInput()
+	waitGroup.Add(1) // add a wait group counter
+	// go routine to send email, runs concurrently with the main function
+	go sendEmail(userTickets, firstName, lastName, email)
 
-		if !handleValidation(firstName, lastName, userTickets) {
-			continue
-		}
-
-		bookTicket(userTickets, firstName, lastName, email)
-
-		// go routine to send email, runs concurrently with the main function
-		go sendEmail(userTickets, firstName, lastName, email)
-
-		// firstNames := getFirstNames()
-
-		fmt.Printf("The bookings are: %v\n", bookings)
-
-		if remainingTickets == 0 {
-			println("Our conference is booked out. Come back next year.")
-			break
-		}
+	// firstNames := getFirstNames()
+	fmt.Printf("The bookings are: %v\n", bookings)
+	if remainingTickets == 0 {
+		println("Our conference is booked out. Come back next year.")
 	}
+
+	waitGroup.Wait() // wait for all go routines to finish
 }
 
 func greetUsers() {
@@ -86,6 +84,7 @@ func sendEmail(userTickets uint, firstName string, lastName string, email string
 	fmt.Println("Sending email...")
 	fmt.Print(emailContent)
 	fmt.Println("####################")
+	waitGroup.Done() // decrement the wait group counter
 }
 
 func handleValidation(firstName string, lastName string, userTickets uint) bool {
