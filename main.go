@@ -3,7 +3,8 @@ package main // package main.
 import (
 	"fmt"                   // import fmt package
 	"go-lang-basics/helper" // import helper package
-	"sync" 				// import sync package
+	"strconv"
+	"sync" // import sync package
 	"time"
 )
 
@@ -28,12 +29,33 @@ type Rectangle struct {
 	width  float64
 }
 
+type Shape interface {
+	Area() float64
+}
+
 // entry point of the program
 func main() {
 
+	// creating an instance of Rectangle struct
 	rect := Rectangle{length: 10.0, width: 5.0}
+	
+	// calling printArea function with rect structure which implements Shape interface
+	// printArea is a higher-order function that takes another function as an argument
+	printArea(rect, func() {
+		fmt.Println("This is a rectangle")
+	})
+
+	// calling Area method on rect structure
 	area := rect.Area()
-	println("Area of Rectangle:", area)
+	fmt.Printf("Area of Rectangle: %f\n", area)
+
+	val, err := strconv.Atoi("42b")
+
+	if err != nil {
+		fmt.Println("Error converting string to integer:", err.Error())
+	} else {
+		fmt.Println("Converted integer value:", val)
+	}
 
 	// calling greetUsers function
 	greetUsers()
@@ -118,7 +140,14 @@ func handleValidation(firstName string, lastName string, userTickets uint) bool 
     return true
 }
 
+// structure method
 // method to calculate area of rectangle
 func (r Rectangle) Area() float64 {
 	return r.length * r.width
 }
+
+func printArea(s Shape, message func()) {
+	fmt.Printf("Area: %f\n", s.Area())
+	message()
+}
+
